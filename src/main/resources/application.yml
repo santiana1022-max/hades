@@ -1,1 +1,41 @@
-spring.application.name=hades
+server:
+  port: 8088
+
+spring:
+  application:
+    name: hades
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/your_database?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    # 数据库用户名
+    username: root
+    # 数据库密码
+    password: Sanyuan1022
+    hikari:
+        minimum-idle: 5
+        maximum-pool-size: 20  # 最大连接数
+        idle-timeout: 300000  # 空闲连接超时时间（5分钟）
+        max-lifetime: 1800000  # 连接最大生命周期（30分钟）
+        connection-timeout: 30000  # 连接超时时间（30秒）
+        pool-name: HadesHikariPool  # 连接池名称
+
+# MyBatis-Plus 核心配置
+mybatis-plus:
+  # 1. MyBatis 原生配置
+  configuration:
+    map-underscore-to-camel-case: true  # 开启驼峰命名映射（数据库下划线 → 实体类驼峰，如 user_name → userName）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印执行的 SQL 语句（开发环境开启，生产环境关闭）
+    cache-enabled: false  # 关闭二级缓存（避免数据不一致，按需开启）
+  # 2. Mapper 映射文件路径（若使用 XML 写 SQL，需配置；纯注解可省略）
+  mapper-locations: classpath:mapper/*.xml
+  # 3. 实体类别名包（简化 XML 中实体类引用，如 com.hades.entity.User → User）
+  type-aliases-package: com.hades.entity
+  # 4. MyBatis-Plus 全局配置（统一规则，避免重复配置）
+  global-config:
+    db-config:
+      id-type: assign_id  # 主键策略：雪花算法（全局唯一ID，推荐）
+      logic-delete-field: is_deleted  # 全局逻辑删除字段名（数据库字段）
+      logic-delete-value: 1  # 逻辑删除值（已删除）
+      logic-not-delete-value: 0  # 逻辑未删除值（未删除）
+      table-prefix: hades_  # 数据库表前缀（若表名统一前缀，可配置，如 hades_user）
