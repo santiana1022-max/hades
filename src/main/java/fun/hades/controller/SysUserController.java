@@ -1,6 +1,8 @@
 package fun.hades.controller;
 
 import fun.hades.common.Result;
+import fun.hades.common.enums.StatusCodeEnum;
+import fun.hades.common.util.WebUtil;
 import fun.hades.dto.request.LoginDTO;
 import fun.hades.dto.response.SysUserDTO;
 import fun.hades.service.SysUserService;
@@ -24,44 +26,23 @@ public class SysUserController {
     private SysUserService sysUserService;
 
 
-    @PostMapping("/login")
-    public Result<SysUserDTO> login(
-            @Valid @RequestBody LoginDTO loginDTO,
-            HttpServletRequest request
-    ) {
-        // 获取客户端登录IP
-        String loginIp = getClientIp(request);
-
-        // 调用登录业务逻辑
-        SysUserDTO userDTO = sysUserService.login(loginDTO.getAccount(),loginDTO.getPassword(), loginIp);
-
-        // 处理结果
-        if (userDTO == null) {
-            return Result.error("账号或密码错误");
-        }
-        return Result.success(userDTO);
-    }
-
-    /**
-     * 工具方法：获取客户端真实IP（兼容代理、Nginx场景）
-     */
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        // 处理多代理情况，取第一个IP
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip;
-    }
+//    @PostMapping("/login")
+//    public Result<SysUserDTO> login(
+//            @Valid @RequestBody LoginDTO loginDTO,
+//            HttpServletRequest request
+//    ) {
+//        // 获取客户端登录IP
+//        String loginIp = WebUtil.getClientIp(request);
+//
+//        // 调用登录业务逻辑
+//        SysUserDTO userDTO = sysUserService.login(loginDTO.getAccount(),loginDTO.getPassword(), loginIp);
+//
+//        // 处理结果
+//        if (userDTO == null) {
+//            return Result.error(StatusCodeEnum.ACCOUNT_PASSWORD_ERROR);
+//        }
+//        return Result.success(userDTO);
+//    }
 
     /**
      * 根据用户名查询用户信息
@@ -74,7 +55,7 @@ public class SysUserController {
     ) {
         SysUserDTO userDTO = sysUserService.getByUsername(username);
         if (userDTO == null) {
-            return Result.error("用户不存在");
+            return Result.error(StatusCodeEnum.USER_NOT_FOUND);
         }
         return Result.success(userDTO);
     }
@@ -90,7 +71,7 @@ public class SysUserController {
     ) {
         SysUserDTO userDTO = sysUserService.getByPhone(phone);
         if (userDTO == null) {
-            return Result.error("用户不存在");
+            return Result.error(StatusCodeEnum.USER_NOT_FOUND);
         }
         return Result.success(userDTO);
     }
@@ -106,7 +87,7 @@ public class SysUserController {
     ) {
         SysUserDTO userDTO = sysUserService.getByEmail(email);
         if (userDTO == null) {
-            return Result.error("用户不存在");
+            return Result.error(StatusCodeEnum.USER_NOT_FOUND);
         }
         return Result.success(userDTO);
     }

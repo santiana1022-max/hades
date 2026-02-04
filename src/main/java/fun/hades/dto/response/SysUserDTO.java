@@ -1,6 +1,9 @@
 package fun.hades.dto.response;
 
+import fun.hades.entity.SysUser;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
 import java.time.LocalDateTime;
 
 /**
@@ -52,4 +55,22 @@ public class SysUserDTO {
      * 角色列表（多对多关联）
      */
 //    private List<SysRole> roleList;
+
+    /**
+     * 通用方法：将SysUser转换为SysUserDTO，并查询角色列表
+     * @param user 原始用户实体
+     * @return 脱敏后的用户DTO
+     */
+    public static SysUserDTO convertToDTO(SysUser user) {
+        if (user == null) {
+            return null;
+        }
+        SysUserDTO userDTO = new SysUserDTO();
+        // 复制非敏感字段（BeanUtils自动匹配属性名）
+        BeanUtils.copyProperties(user, userDTO);
+        // 查询用户角色列表
+//        List<SysRole> roleList = sysUserMapper.selectRolesByUserId(user.getId());
+//        userDTO.setRoleList(roleList);
+        return userDTO;
+    }
 }
