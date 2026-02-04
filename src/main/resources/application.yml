@@ -7,7 +7,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/your_database?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/hades?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     # 数据库用户名
     username: root
     # 数据库密码
@@ -30,7 +30,7 @@ mybatis-plus:
   # 2. Mapper 映射文件路径（若使用 XML 写 SQL，需配置；纯注解可省略）
   mapper-locations: classpath:mapper/*.xml
   # 3. 实体类别名包（简化 XML 中实体类引用，如 com.hades.entity.User → User）
-  type-aliases-package: com.hades.entity
+  type-aliases-package: fun.hades.entity
   # 4. MyBatis-Plus 全局配置（统一规则，避免重复配置）
   global-config:
     db-config:
