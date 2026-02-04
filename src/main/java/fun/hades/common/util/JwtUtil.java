@@ -40,7 +40,9 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         // 可添加自定义载荷（如用户ID、角色，禁止存敏感信息）
         claims.put("username", userDetails.getUsername());
-        return createToken(claims, userDetails.getUsername());
+        String token = createToken(claims, userDetails.getUsername());
+        System.out.println(token);
+        return token;
     }
 
     // 2. 创建令牌（私有方法，封装生成逻辑）
@@ -56,16 +58,25 @@ public class JwtUtil {
 
     // 3. 从令牌中提取用户名
     public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+        Claims claims = extractAllClaims(token);
+        String username = claims.get("username") != null ?
+                claims.get("username").toString() : claims.getSubject();
+        System.out.println("【JwtUtil解析】提取的用户名: " + username);
+        return username;
     }
 
     // 4. 提取令牌所有载荷
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
+                .setAllowedClockSkewSeconds(300)
                 .build()
-                .parseClaimsJws(token.replace(prefix, "")) // 去掉前缀
+                .parseClaimsJws(token)
                 .getBody();
+        // 打印Token的exp和签发时间
+        System.out.println("【JwtUtil解析】Token的exp过期时间（CST）: " + claims.getExpiration());
+        System.out.println("【JwtUtil解析】Token的签发时间（CST）: " + claims.getIssuedAt());
+        return claims;
     }
 
     // 5. 验证令牌有效性（是否过期、签名是否正确、用户名匹配）
@@ -87,5 +98,10 @@ public class JwtUtil {
     // 8. 获取令牌前缀（供过滤器使用）
     public String getPrefix() {
         return prefix;
+    }
+
+    // 8. 获取令牌前缀（供过滤器使用）
+    public Long getExpire() {
+        return expire;
     }
 }

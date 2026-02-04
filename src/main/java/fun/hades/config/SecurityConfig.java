@@ -56,7 +56,7 @@ public class SecurityConfig {
             return org.springframework.security.core.userdetails.User
                     .withUsername(user.getUsername())
                     .password(user.getPassword()) // 数据库中必须是BCrypt加密密码
-                    .authorities("ROLE_USER") // 角色（可扩展）
+                    .authorities("ADMIN") // 角色（可扩展）
                     .build();
         };
     }
@@ -70,9 +70,9 @@ public class SecurityConfig {
                 // 配置请求权限
                 .authorizeHttpRequests(auth -> auth
                         // 【核心】放行登录接口
-                        .antMatchers("/api/user/login").permitAll()
+                        .antMatchers("/api/sys/login").permitAll()
                         // 其余接口暂时放行
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 // 无状态会话
                 .sessionManagement(session -> session

@@ -31,12 +31,6 @@ public class SysUser {
     private String password;
 
     /**
-     * 密码加密盐值
-     */
-    @TableField("salt")
-    private String salt;
-
-    /**
      * 手机号（唯一）
      */
     @TableField("phone")
