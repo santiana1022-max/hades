@@ -4,11 +4,14 @@ import fun.hades.common.enums.StatusCodeEnum;
 import fun.hades.common.filter.JwtAuthenticationFilter;
 import fun.hades.entity.SysUser;
 import fun.hades.service.SysUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,13 +24,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * 密码加密配置（仅用于密码验证，无安全拦截）
  */
 @Configuration
+//@EnableMethodSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter;
-
-    @Autowired
-    private SysUserService sysUserService;
+    private final JwtAuthenticationFilter jwtAuthFilter;
 
     /**
      * 注入BCrypt密码加密器（Spring官方推荐）
@@ -42,25 +44,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
-    // 3. 用户详情服务（从数据库查询用户，适配你的SysUserService）
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> {
-            // 调用你已有的getUserByAccount方法查询用户
-            SysUser user = sysUserService.getUserByAccount(username);
-            if (user == null) {
-                throw new RuntimeException(StatusCodeEnum.USER_NOT_FOUND.getMsg());
-            }
-            // 封装为Spring Security的UserDetails（密码用加密后的）
-            return org.springframework.security.core.userdetails.User
-                    .withUsername(user.getUsername())
-                    .password(user.getPassword()) // 数据库中必须是BCrypt加密密码
-                    .authorities("ADMIN") // 角色（可扩展）
-                    .build();
-        };
-    }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

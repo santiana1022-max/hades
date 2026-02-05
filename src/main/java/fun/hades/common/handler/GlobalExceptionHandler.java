@@ -3,6 +3,7 @@ package fun.hades.common.handler;
 import fun.hades.common.Result;
 import fun.hades.common.enums.StatusCodeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,12 @@ public class GlobalExceptionHandler {
     public Result<Object> handleNullPointerException(NullPointerException e, HttpServletRequest request) {
         log.error("【空指针异常】请求地址：{}，异常信息：", request.getRequestURI(), e);
         return Result.error(StatusCodeEnum.SYSTEM_ERROR);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Result<Object> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request){
+        log.error("登录用户权限不足，需要检查权限：", request.getRequestURI(), e);
+        return Result.error(StatusCodeEnum.FORBIDDEN);
     }
 
     // 3. 捕获参数校验异常（如@NotBlank、@NotNull）

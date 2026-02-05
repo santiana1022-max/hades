@@ -5,7 +5,9 @@ import fun.hades.common.enums.StatusCodeEnum;
 import fun.hades.entity.SysMenu;
 import fun.hades.service.SysMenuService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import java.util.List;
 /**
  * 菜单管理接口
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/sys/menu")
 @RequiredArgsConstructor
@@ -25,8 +28,12 @@ public class SysMenuController {
      * 查询菜单树形列表
      */
     @GetMapping("/tree")
-    @PreAuthorize("hasAuthority('system:menu:list')")
+    @PreAuthorize("hasAuthority('sys:menu:list')")
     public Result<List<SysMenu>> tree() {
+        // 【临时调试】打印当前用户的权限列表
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("当前用户权限：{}", authentication.getAuthorities()); // 看这里是否有 sys:menu:list
+
         List<SysMenu> menuTree = sysMenuService.listMenuTree();
         return Result.success(StatusCodeEnum.SUCCESS_GENERAL,menuTree);
     }

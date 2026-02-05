@@ -1,6 +1,7 @@
 package fun.hades.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.hades.common.util.MenuTreeUtil;
 import fun.hades.common.util.RedisUtil;
@@ -9,16 +10,19 @@ import fun.hades.mapper.SysMenuMapper;
 import fun.hades.mapper.SysUserRoleMapper;
 import fun.hades.service.SysMenuService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 菜单Service实现
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService {
@@ -80,5 +84,25 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(SysMenu::getId, ids).or().in(SysMenu::getParentId, ids);
         return this.remove(wrapper);
+    }
+
+    @Override
+    public List<String> listPermsByMenuIds(List<Long> menuIds) {
+        log.info("接收的菜单ID列表：{}", menuIds);
+        if (CollectionUtils.isEmpty(menuIds)) {
+            return Arrays.asList();
+        }
+        List<String> collect = this.lambdaQuery()
+                .in(SysMenu::getId, menuIds)
+                .eq(SysMenu::getIsDeleted, 0)
+                .eq(SysMenu::getStatus, 1)
+                .isNotNull(SysMenu::getPerms)
+                .ne(SysMenu::getPerms, "")
+                .list()
+                .stream()
+                .map(SysMenu::getPerms)
+                .distinct() // 去重（同一权限可能对应多个菜单）
+                .collect(Collectors.toList());
+        return collect;
     }
 }

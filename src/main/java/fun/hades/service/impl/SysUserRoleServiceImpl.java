@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,31 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
             return userRole;
         }).collect(Collectors.toList());
         return sysUserRoleMapper.batchInsert(list) > 0;
+    }
+
+
+    @Override
+    public List<Long> listRoleIdsByUserId(Long userId) {
+        return this.lambdaQuery()
+                .eq(SysUserRole::getUserId, userId)
+                .eq(SysUserRole::getIsDeleted, 0)
+                .list()
+                .stream()
+                .map(SysUserRole::getRoleId)
+                .collect(Collectors.toList());
+    }
+
+    /*
+     * 查询用户角色
+     */
+    @Override
+    public List<SysRoleDTO> listRoleMapByUserId(Long userId) {
+        // 空值校验：用户ID为空，直接返回空Map
+        if (userId == null) {
+            return Arrays.asList();
+        }
+        // 复用批量查询方法（企业级：避免重复编写查询逻辑）
+        return listRoleMapByUserIds(Collections.singletonList(userId)).get(userId);
     }
 
     /**

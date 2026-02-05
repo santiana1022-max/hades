@@ -9,6 +9,7 @@ import fun.hades.dto.response.SysUserDTO;
 import fun.hades.entity.convert.SysUserConvert;
 import fun.hades.service.SysUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +32,7 @@ import java.util.Map;
 @RequestMapping("/api/sys")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class SysLoginController {
 
     private final AuthenticationManager authenticationManager;
@@ -83,6 +85,7 @@ public class SysLoginController {
 
             // 3. 加载用户信息
             UserDetails userDetails = userDetailsService.loadUserByUsername(account);
+            log.info("userDetails: {}",userDetails.getAuthorities());
 
             // 4. 生成JWT令牌
             String token = jwtUtil.generateToken(userDetails);

@@ -13,6 +13,7 @@ public interface SysMenuService extends IService<SysMenu> {
      */
     List<SysMenu> listMenuTree();
 
+
     /**
      * 根据用户ID查询菜单树形列表
      */
@@ -27,4 +28,9 @@ public interface SysMenuService extends IService<SysMenu> {
      * 批量删除菜单（逻辑删除）
      */
     boolean deleteMenuByIds(List<Long> ids);
+
+    /*
+        通过菜单id查询所有权限标识
+     */
+    List<String> listPermsByMenuIds(List<Long> menuIds);
 }

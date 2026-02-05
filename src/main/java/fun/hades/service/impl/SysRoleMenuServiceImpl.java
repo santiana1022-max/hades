@@ -1,6 +1,7 @@
 package fun.hades.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.hades.entity.SysRoleMenu;
 import fun.hades.mapper.SysRoleMenuMapper;
@@ -8,6 +9,9 @@ import fun.hades.service.SysRoleMenuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,5 +44,20 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
             return roleMenu;
         }).collect(Collectors.toList());
         return sysRoleMenuMapper.batchInsert(list) > 0;
+    }
+
+    @Override
+    public List<Long> listMenuIdsByRoleIds(List<Long> roleIds) {
+        if (CollectionUtils.isEmpty(roleIds)) {
+            return Arrays.asList();
+        }
+        return this.lambdaQuery()
+                .in(SysRoleMenu::getRoleId, roleIds)
+                .eq(SysRoleMenu::getIsDeleted, 0)
+                .list()
+                .stream()
+                .map(SysRoleMenu::getMenuId)
+                .distinct() // 去重（避免同一菜单被多个角色关联）
+                .collect(Collectors.toList());
     }
 }

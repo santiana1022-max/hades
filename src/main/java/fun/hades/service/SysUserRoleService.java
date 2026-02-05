@@ -15,8 +15,18 @@ public interface SysUserRoleService extends IService<SysUserRole> {
      */
     boolean assignRoleToUser(Long userId, List<Long> roleIds);
 
+
+    List<Long> listRoleIdsByUserId(Long userId);
+
     /**
-     * 批量查询用户的角色列表（多对多核心方法，避免N+1）
+     * 查询用户的角色列表
+     * @param userId 用户ID集合
+     * @return key=用户ID，value=该用户的角色DTO列表
+     */
+    List<SysRoleDTO> listRoleMapByUserId(Long userId);
+
+    /**
+     * 批量查询用户的角色列表
      * @param userIds 用户ID集合
      * @return key=用户ID，value=该用户的角色DTO列表
      */

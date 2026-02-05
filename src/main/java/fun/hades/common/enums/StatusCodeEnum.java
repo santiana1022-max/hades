@@ -25,6 +25,8 @@ public enum StatusCodeEnum {
     // 用户模块
     ACCOUNT_PASSWORD_ERROR(1000, "账号或密码错误"),
     USER_NOT_FOUND(1001, "用户不存在"),
+    USER_NOT_LOING(1001, "用户未登录，请先登录"),
+    REN_ZHENG_XIN_XI(1001, "认证信息异常"),
     USER_DISABLED(1002, "账号已被禁用，请联系管理员"),
     PHONE_NOT_EXIST(1003, "手机号未注册"),
 
@@ -35,18 +37,18 @@ public enum StatusCodeEnum {
 
 
     // 错误码
-    private final int code;
+    private final Integer code;
     // 错误文案
     private final String msg;
 
     // 构造方法
-    StatusCodeEnum(int code, String msg) {
+    StatusCodeEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     // getter 方法
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

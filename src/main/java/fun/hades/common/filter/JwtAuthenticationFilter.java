@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import fun.hades.common.util.RedisUtil;
 import fun.hades.config.IgnoreUrlsConfig;
+import fun.hades.security.service.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -101,6 +102,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3. 验证令牌并设置认证信息（仅当用户未认证时处理）
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            log.info("userDetails ================{}", userDetails);
 
 
             log.info("jwtUtil.validateToken(pureToken, userDetails) === {}",jwtUtil.validateToken(pureToken, userDetails));
@@ -111,17 +113,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtUtil.isNeedRenew(pureToken)) {
                     log.info("jwtUtil.isNeedRenew(pureToken) = {}",jwtUtil.isNeedRenew(pureToken));
-//                    String newToken = jwtUtil.getPrefix()+ jwtUtil.generateToken(userDetails);
-//                    redisUtil.deleteLoginToken(token);
-//                    redisUtil.setLoginToken(newToken,username,jwtUtil.getExpire());
-//                    //  将新token放入响应头（TODO:前端需监听该header，替换本地token）
-//                    response.setHeader("New-Authorization", newToken);
-//                    log.info("续签成功，新token已返回，用户名：{}", username);
+                    String newToken = jwtUtil.getPrefix()+ jwtUtil.generateToken(userDetails);
+                    redisUtil.deleteLoginToken(token);
+                    redisUtil.setLoginToken(newToken,username,jwtUtil.getExpire());
+                    //  将新token放入响应头（TODO:前端需监听该header，替换本地token）
+                    response.setHeader("New-Authorization", newToken);
+                    log.info("续签成功，新token已返回，用户名：{}", username);
                 }
 
                 //token有效，将用户信息放入Security上下文
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails,
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
                                 null,
                                 userDetails.getAuthorities());
 
@@ -131,6 +134,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder
                         .getContext()
                         .setAuthentication(authToken);
+
+
+                log.info("JWT过滤器：用户 {} 权限已存入上下文，权限列表：{}",
+                        userDetails.getUsername(), userDetails.getAuthorities());
+
             }else {
                 responseError(response,StatusCodeEnum.TOKEN_EXPIRED);
                 return;
@@ -139,7 +147,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             responseError(response,StatusCodeEnum.TOKEN_NOT_EXIST);
             return;
         }
-
 
 
         // 4. 放行后续过滤器

@@ -3,13 +3,15 @@ package fun.hades.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import fun.hades.common.enums.StatusCodeEnum;
+import fun.hades.common.exception.BusinessException;
+import fun.hades.common.util.SecurityUtil;
 import fun.hades.dto.SysUserQueryDTO;
 import fun.hades.dto.response.SysRoleDTO;
 import fun.hades.dto.response.SysUserDTO;
 import fun.hades.entity.SysUser;
 import fun.hades.entity.convert.SysUserConvert;
 import fun.hades.mapper.SysUserMapper;
-import fun.hades.mapper.SysUserRoleMapper;
 import fun.hades.service.SysUserRoleService;
 import fun.hades.service.SysUserService;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +39,29 @@ public class SysUserServiceImpl implements SysUserService {
      */
     @Override
     public SysUserDTO getUserInfo() {
+        // 1. 从上下文获取用户ID（一行代码，极简）
+        Long userId = SecurityUtil.getCurrentUserId();
 
-        return null;
+        // 2. 查询用户基础信息
+        SysUser user = sysUserMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(StatusCodeEnum.USER_NOT_FOUND);
+        }
+
+        // 3. 查询用户角色列表（复用你现有方法）
+        List<SysRoleDTO> roleList = sysUserRoleService.listRoleMapByUserId(userId);
+
+        // 4. 组装返回 DTO（仅前端需要的字段）
+        SysUserDTO dto = new SysUserDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setPhone(user.getPhone());
+        dto.setEmail(user.getEmail());
+        dto.setAvatar(user.getAvatar());
+        dto.setStatus(user.getStatus());
+        dto.setRemark(user.getRemark());
+        dto.setRoleList(roleList);
+        return dto;
     }
 
     @Override
