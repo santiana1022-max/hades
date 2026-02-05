@@ -34,7 +34,7 @@ public class SysUserController {
         if (userDTO == null) {
             return Result.error(StatusCodeEnum.USER_NOT_FOUND);
         }
-        return Result.success(userDTO);
+        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,userDTO);
     }
 
     /**
@@ -50,7 +50,7 @@ public class SysUserController {
         if (userDTO == null) {
             return Result.error(StatusCodeEnum.USER_NOT_FOUND);
         }
-        return Result.success(userDTO);
+        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,userDTO);
     }
 
     /**
@@ -66,6 +66,6 @@ public class SysUserController {
         if (userDTO == null) {
             return Result.error(StatusCodeEnum.USER_NOT_FOUND);
         }
-        return Result.success(userDTO);
+        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,userDTO);
     }
 }

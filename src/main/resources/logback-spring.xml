@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <!-- 1. 定义全局常量：日志格式、存储路径、文件名前缀 -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"/>
+    <property name="LOG_PATH" value="./logs"/> <!-- 日志存储根路径：项目根目录下的logs文件夹 -->
+    <property name="LOG_FILE_PREFIX" value="auth-project"/> <!-- 日志文件名前缀（自定义） -->
+
+    <!-- 2. 控制台输出 Appender（开发用，彩色日志） -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <withJansi>true</withJansi> <!-- 开启控制台彩色日志 -->
+    </appender>
+
+    <!-- 3. INFO 级别文件输出 Appender（按天滚动，保留30天） -->
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 当前写入的文件路径 -->
+        <file>${LOG_PATH}/${LOG_FILE_PREFIX}_info.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- 滚动策略：按天分割日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 历史日志文件名格式：前缀_日期.log -->
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_PREFIX}_info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- 保留30天历史日志，自动清理过期文件 -->
+            <totalSizeCap>10GB</totalSizeCap> <!-- 所有日志文件总大小上限，避免占满磁盘 -->
+        </rollingPolicy>
+        <!-- 过滤：只记录 INFO 级别及以上，排除 ERROR（ERROR 单独存） -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 4. ERROR 级别文件输出 Appender（单独存储，便于排查问题） -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE_PREFIX}_error.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_PREFIX}_error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <!-- 过滤：只记录 ERROR 级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 5. 根日志规则：默认级别 INFO，输出到 控制台 + INFO文件 + ERROR文件 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_INFO"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </root>
+
+    <!-- 6. 自定义包日志级别（你的项目包名，改为自己的，比如com.example） -->
+    <logger name="fun.hades" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_INFO"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </logger>
+    <!-- 框架日志级别（按需调整，比如Spring、Redis、JWT） -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.data.redis" level="INFO"/>
+    <logger name="io.jsonwebtoken" level="INFO"/>
+</configuration>

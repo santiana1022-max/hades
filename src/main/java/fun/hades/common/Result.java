@@ -23,27 +23,44 @@ public class Result<T> {
     private T data;
 
     // 成功响应（无数据）
-    public static <T> Result<T> success() {
+    public static <T> Result<T> success(StatusCodeEnum codeEnum) {
         Result<T> result = new Result<>();
-        result.setCode(StatusCodeEnum.SUCCESS.getCode());
-        result.setMsg(StatusCodeEnum.SUCCESS.getMsg());
+        result.setCode(codeEnum.getCode());
+        result.setMsg(codeEnum.getMsg());
         return result;
     }
 
     // 成功响应（带数据）
-    public static <T> Result<T> success(T data) {
+    public static <T> Result<T> success(StatusCodeEnum codeEnum,T data) {
         Result<T> result = new Result<>();
-        result.setCode(StatusCodeEnum.SUCCESS.getCode());
-        result.setMsg(StatusCodeEnum.SUCCESS.getMsg());
+        result.setCode(codeEnum.getCode());
+        result.setMsg(codeEnum.getMsg());
         result.setData(data);
         return result;
     }
 
-    // 2. 错误响应（核心：基于枚举的方法，推荐使用）
-    public static <T> Result<T> error(StatusCodeEnum errorCode) {
+
+    // token异常
+    public static <T> Result<T> unauthorized(StatusCodeEnum codeEnum) {
         Result<T> result = new Result<>();
-        result.setCode(errorCode.getCode());
-        result.setMsg(errorCode.getMsg());
+        result.setCode(codeEnum.getCode());
+        result.setMsg(codeEnum.getMsg());
+        return result;
+    }
+
+    // 业务异常
+    public static <T> Result<T> fail(StatusCodeEnum codeEnum) {
+        Result<T> result = new Result<>();
+        result.setCode(codeEnum.getCode());
+        result.setMsg(codeEnum.getMsg());
+        return result;
+    }
+
+    // 服务异常
+    public static <T> Result<T> error(StatusCodeEnum codeEnum) {
+        Result<T> result = new Result<>();
+        result.setCode(codeEnum.getCode());
+        result.setMsg(codeEnum.getMsg());
         return result;
     }
 

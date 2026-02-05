@@ -2,6 +2,7 @@ package fun.hades.common.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -10,10 +11,12 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * JWT工具类（生成、解析、验证令牌）
  */
+@Slf4j
 @Component
 public class JwtUtil {
 
@@ -29,6 +32,9 @@ public class JwtUtil {
 
     @Value("${jwt.prefix}")
     private String prefix;
+
+    @Value("${jwt.renew-window}")
+    private Long renewWindow;
 
     // 获取签名密钥（安全加密）
     private Key getSignKey() {
@@ -56,27 +62,30 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 3. 从令牌中提取用户名
+    // 从令牌中提取用户名
     public String extractUsername(String token) {
-        Claims claims = extractAllClaims(token);
-        String username = claims.get("username") != null ?
-                claims.get("username").toString() : claims.getSubject();
-        System.out.println("【JwtUtil解析】提取的用户名: " + username);
-        return username;
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    // 提取token过期时间（原有方法，保留）
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    // 提取claim
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
     // 4. 提取令牌所有载荷
     private Claims extractAllClaims(String token) {
-        Claims claims = Jwts.parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .setAllowedClockSkewSeconds(300)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        // 打印Token的exp和签发时间
-        System.out.println("【JwtUtil解析】Token的exp过期时间（CST）: " + claims.getExpiration());
-        System.out.println("【JwtUtil解析】Token的签发时间（CST）: " + claims.getIssuedAt());
-        return claims;
     }
 
     // 5. 验证令牌有效性（是否过期、签名是否正确、用户名匹配）
@@ -88,6 +97,23 @@ public class JwtUtil {
     // 6. 判断令牌是否过期
     private boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    /**
+     * 获取token剩余有效期（单位：分钟）
+     */
+    public long getRemainingExpireMinutes(String token) {
+        Date expiration = extractExpiration(token);
+        long remainingMillis = expiration.getTime() - System.currentTimeMillis();
+        // 剩余毫秒转分钟，不足1分钟按0计算
+        return remainingMillis > 0 ? remainingMillis / (60 * 1000) : 0;
+    }
+
+    /**
+     * 判断是否需要续签（剩余有效期 ≤ 续签窗口期）
+     */
+    public boolean isNeedRenew(String token) {
+        return getRemainingExpireMinutes(token) <= renewWindow;
     }
 
     // 7. 获取请求头名称（供过滤器使用）

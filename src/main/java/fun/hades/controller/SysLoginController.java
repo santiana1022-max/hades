@@ -47,6 +47,25 @@ public class SysLoginController {
      */
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> loginParam, HttpServletRequest request) {
+        /*
+            todo：
+                1.登录接口限流防刷
+                2.账号密码错误次数限制 + 临时锁定
+                3.图形验证码 / 短信验证码
+                4.登录态增强：Refresh Token 机制（替代单纯的自动续签
+                5.登录日志持久化
+                6.登出功能增强：Token 黑名单 + Redis 清理
+                7.推荐功能：
+                    7.1.多设备登录管理
+                    7.2.异地登录检测 + 告警
+                    7.3.记住我（免密登录）
+                    7.4.密码安全增强
+                    7.5.防止表单重复提交
+                    7.6.第三方登录(微信登录)
+                    7.7。手机号一键登录
+
+         */
+
         String account = loginParam.get("account");
         String password = loginParam.get("password");
 
@@ -79,7 +98,7 @@ public class SysLoginController {
             resultData.put("user", userDTO);
 
             // 6. 成功响应（用你统一的枚举文案）
-            return Result.success(resultData);
+            return Result.success(StatusCodeEnum.SUCCESS_LOGIN, resultData);
 
         } catch (Exception e) {
             // 7. 认证失败（用枚举返回错误）
@@ -100,6 +119,6 @@ public class SysLoginController {
 
         // 【核心】删除 Redis 中的 Token
         redisUtil.deleteLoginToken(token);
-        return Result.success("登出成功");
+        return Result.success(StatusCodeEnum.SUCCESS_LOGOUT);
     }
 }
