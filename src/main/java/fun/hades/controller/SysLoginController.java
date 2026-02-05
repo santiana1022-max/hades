@@ -4,13 +4,17 @@ import fun.hades.common.Result;
 import fun.hades.common.enums.StatusCodeEnum;
 import fun.hades.common.util.JwtUtil;
 import fun.hades.common.util.RedisUtil;
+import fun.hades.dto.response.LoginRespDTO;
 import fun.hades.dto.response.SysUserDTO;
+import fun.hades.entity.convert.SysUserConvert;
 import fun.hades.service.SysUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,28 +29,25 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/sys")
+@RequiredArgsConstructor
+@Validated
 public class SysLoginController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private SysUserService sysUserService;
+    private final SysUserService sysUserService;
 
-    @Autowired
-    private RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
 
     /**
      * 登录接口（返回JWT令牌）
      */
     @PostMapping("/login")
-    public Result<Map<String, Object>> login(@RequestBody Map<String, String> loginParam, HttpServletRequest request) {
+    public Result<LoginRespDTO> login(@RequestBody Map<String, String> loginParam, HttpServletRequest request) {
         /*
             todo：
                 1.登录接口限流防刷
@@ -86,19 +87,11 @@ public class SysLoginController {
             // 4. 生成JWT令牌
             String token = jwtUtil.generateToken(userDetails);
             String fullToken = jwtUtil.getPrefix() + token; // 拼接前缀
-            SysUserDTO userDTO = SysUserDTO.convertToDTO(sysUserService.getUserByAccount(account));
 
             // 4. 【核心】Token 存入 Redis，过期时间与 JWT 一致（7200秒）
             redisUtil.setLoginToken(fullToken, account, jwtUtil.getExpire() / 1000);
 
-            // 5. 封装返回数据（令牌+用户信息）
-            Map<String, Object> resultData = new LinkedHashMap<>();
-            resultData.put("token", fullToken);
-
-            resultData.put("user", userDTO);
-
-            // 6. 成功响应（用你统一的枚举文案）
-            return Result.success(StatusCodeEnum.SUCCESS_LOGIN, resultData);
+            return Result.success(StatusCodeEnum.SUCCESS_LOGIN, new LoginRespDTO(fullToken));
 
         } catch (Exception e) {
             // 7. 认证失败（用枚举返回错误）

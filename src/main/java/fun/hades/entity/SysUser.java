@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 public class SysUser {
 
     /**
-     * 主键ID（雪花算法，MyBatis-Plus自动生成）
+     * 主键ID（
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

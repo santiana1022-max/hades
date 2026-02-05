@@ -47,7 +47,6 @@ public class JwtUtil {
         // 可添加自定义载荷（如用户ID、角色，禁止存敏感信息）
         claims.put("username", userDetails.getUsername());
         String token = createToken(claims, userDetails.getUsername());
-        System.out.println(token);
         return token;
     }
 
@@ -106,13 +105,17 @@ public class JwtUtil {
         Date expiration = extractExpiration(token);
         long remainingMillis = expiration.getTime() - System.currentTimeMillis();
         // 剩余毫秒转分钟，不足1分钟按0计算
-        return remainingMillis > 0 ? remainingMillis / (60 * 1000) : 0;
+        return remainingMillis > 0 ? remainingMillis : 0;
     }
 
     /**
      * 判断是否需要续签（剩余有效期 ≤ 续签窗口期）
      */
     public boolean isNeedRenew(String token) {
+        log.info("getRemainingExpireMinutes(token)   ===== {}",getRemainingExpireMinutes(token));
+        log.info("renewWindow ===== {}" , renewWindow);
+
+        log.info("{}", getRemainingExpireMinutes(token) <= renewWindow);
         return getRemainingExpireMinutes(token) <= renewWindow;
     }
 

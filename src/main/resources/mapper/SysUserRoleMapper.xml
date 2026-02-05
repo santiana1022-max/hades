@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.hades.mapper.SysUserRoleMapper">
+
+    <!-- 根据用户ID查询角色ID -->
+    <select id="listRoleIdsByUserId" resultType="java.lang.Long">
+        SELECT ur.role_id FROM sys_user_role ur
+        WHERE ur.user_id = #{userId}
+          AND ur.is_deleted = 0
+    </select>
+
+    <!-- 批量插入 -->
+    <insert id="batchInsert">
+        INSERT INTO sys_user_role (user_id, role_id, create_by)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userId}, #{item.roleId}, #{item.createBy})
+        </foreach>
+    </insert>
+
+</mapper>

@@ -6,7 +6,7 @@
 <mapper namespace="fun.hades.mapper.SysUserMapper">
 
     <!-- 通用结果映射：实体类与数据库字段对应 -->
-    <resultMap id="BaseResultMap" type="fun.hades.entity.SysUser">
+    <resultMap id="UserResultMap" type="fun.hades.entity.SysUser">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="username" property="username" jdbcType="VARCHAR"/>
         <result column="password" property="password" jdbcType="VARCHAR"/>
@@ -15,7 +15,6 @@
         <result column="wx_openid" property="wxOpenid" jdbcType="VARCHAR"/>
         <result column="wx_unionid" property="wxUnionid" jdbcType="VARCHAR"/>
         <result column="avatar" property="avatar" jdbcType="VARCHAR"/>
-        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
         <result column="status" property="status" jdbcType="TINYINT"/>
         <result column="login_ip" property="loginIp" jdbcType="VARCHAR"/>
         <result column="login_time" property="loginTime" jdbcType="TIMESTAMP"/>
@@ -28,26 +27,44 @@
         <result column="remark" property="remark" jdbcType="VARCHAR"/>
     </resultMap>
 
+
+<!--     分页查询用户列表（关联角色）-->
+    <select id="selectUserPage" resultMap="UserResultMap">
+        SELECT DISTINCT u.*
+        FROM sys_user u
+        WHERE u.is_deleted = 0
+        <if test="username != null and username != ''">
+            AND u.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND u.phone LIKE CONCAT('%', #{phone}, '%')
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        ORDER BY u.create_time DESC
+    </select>
+
     <!-- 自定义方法：根据用户名查询用户 -->
-    <select id="selectByUsername" resultMap="BaseResultMap">
+    <select id="selectByUsername" resultMap="UserResultMap">
         SELECT * FROM sys_user
         WHERE username = #{username} AND is_deleted = 0
     </select>
 
     <!-- 自定义方法：根据微信openid查询用户 -->
-    <select id="selectByWxOpenid" resultMap="BaseResultMap">
+    <select id="selectByWxOpenid" resultMap="UserResultMap">
         SELECT * FROM sys_user
         WHERE wx_openid = #{wxOpenid} AND is_deleted = 0
     </select>
 
     <!-- 根据手机号查询用户 -->
-    <select id="selectByPhone" resultMap="BaseResultMap">
+    <select id="selectByPhone" resultMap="UserResultMap">
         SELECT * FROM sys_user
         WHERE phone = #{phone} AND is_deleted = 0
     </select>
 
     <!-- 根据邮箱查询用户 -->
-    <select id="selectByEmail" resultMap="BaseResultMap">
+    <select id="selectByEmail" resultMap="UserResultMap">
         SELECT * FROM sys_user
         WHERE email = #{email} AND is_deleted = 0
     </select>

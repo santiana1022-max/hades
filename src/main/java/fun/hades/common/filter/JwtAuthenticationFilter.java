@@ -102,16 +102,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+
+            log.info("jwtUtil.validateToken(pureToken, userDetails) === {}",jwtUtil.validateToken(pureToken, userDetails));
+            log.info(" redisUtil.hasLoginToken(token) === {}", redisUtil.hasLoginToken(token));
+
             // 判断JWT 签名/过期时间有效 & Redis 中存在该 Token
             if (jwtUtil.validateToken(pureToken, userDetails) && redisUtil.hasLoginToken(token)) {
 
                 if (jwtUtil.isNeedRenew(pureToken)) {
-                    String newToken = jwtUtil.getPrefix()+ jwtUtil.generateToken(userDetails);
-                    redisUtil.deleteLoginToken(token);
-                    redisUtil.setLoginToken(newToken,username,jwtUtil.getExpire());
-                    //  将新token放入响应头（TODO:前端需监听该header，替换本地token）
-                    response.setHeader("New-Authorization", newToken);
-                    log.info("续签成功，新token已返回，用户名：{}", username);
+                    log.info("jwtUtil.isNeedRenew(pureToken) = {}",jwtUtil.isNeedRenew(pureToken));
+//                    String newToken = jwtUtil.getPrefix()+ jwtUtil.generateToken(userDetails);
+//                    redisUtil.deleteLoginToken(token);
+//                    redisUtil.setLoginToken(newToken,username,jwtUtil.getExpire());
+//                    //  将新token放入响应头（TODO:前端需监听该header，替换本地token）
+//                    response.setHeader("New-Authorization", newToken);
+//                    log.info("续签成功，新token已返回，用户名：{}", username);
                 }
 
                 //token有效，将用户信息放入Security上下文
