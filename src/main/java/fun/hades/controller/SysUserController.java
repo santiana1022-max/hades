@@ -24,10 +24,10 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     /**
-     * 分页查询用户列表
+     * 分页查询用户列表 isAuthenticated()  登录后即可访问
      */
     @GetMapping("/info")
-    @PreAuthorize("hasAuthority('sys:user:list')")
+    @PreAuthorize("isAuthenticated()")
     public Result<SysUserDTO> list(){
         SysUserDTO sysUserDTO = sysUserService.getUserInfo();
         return Result.success(StatusCodeEnum.SUCCESS_GENERAL,sysUserDTO);

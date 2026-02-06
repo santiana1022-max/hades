@@ -77,4 +77,12 @@ public class SysMenuController {
         boolean result = sysMenuService.deleteMenuByIds(ids);
         return Result.success(StatusCodeEnum.SUCCESS_GENERAL,result);
     }
+
+    // 当前登录用户可访问的菜单树（前端导航栏专用）
+    @GetMapping("/user/menu")
+    @PreAuthorize("isAuthenticated()")
+    public Result<List<SysMenu>> getUserMenu() {
+        List<SysMenu> userMenuTree = sysMenuService.getUserMenuTree();
+        return Result.success(StatusCodeEnum.SUCCESS_GENERAL, userMenuTree);
+    }
 }

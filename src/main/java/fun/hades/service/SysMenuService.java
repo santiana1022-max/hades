@@ -33,4 +33,7 @@ public interface SysMenuService extends IService<SysMenu> {
         通过菜单id查询所有权限标识
      */
     List<String> listPermsByMenuIds(List<Long> menuIds);
+
+    // 【新增】获取当前登录用户可访问的菜单树形列表
+    List<SysMenu> getUserMenuTree();
 }

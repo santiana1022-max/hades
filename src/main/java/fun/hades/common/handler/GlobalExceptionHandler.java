@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public Result<Object> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request){
-        log.error("登录用户权限不足，需要检查权限：", request.getRequestURI(), e);
+        log.error("登录用户权限不足，需要检查权限,请求地址：{} , 异常信息：{}", request.getRequestURI(), e.getMessage());
         return Result.error(StatusCodeEnum.FORBIDDEN);
     }
 
