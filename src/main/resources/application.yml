@@ -69,4 +69,4 @@ jwt:
 security:
   ignore:
     urls: # 白名单接口（Ant风格通配符）
-      - /api/sys/login          # 登录接口
+      - /sys/login          # 登录接口

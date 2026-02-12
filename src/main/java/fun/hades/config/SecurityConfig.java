@@ -53,7 +53,7 @@ public class SecurityConfig {
                 // 配置请求权限
                 .authorizeHttpRequests(auth -> auth
                         // 【核心】放行登录接口
-                        .antMatchers("/api/sys/login").permitAll()
+                        .antMatchers("/sys/login").permitAll()
                         // 其余接口暂时放行
                         .anyRequest().authenticated()
                 )

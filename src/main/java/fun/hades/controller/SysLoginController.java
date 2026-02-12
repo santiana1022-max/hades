@@ -29,7 +29,7 @@ import java.util.Map;
  * 登录控制器
  */
 @RestController
-@RequestMapping("/api/sys")
+@RequestMapping("/sys")
 @RequiredArgsConstructor
 @Validated
 @Slf4j

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间必须和Mapper接口全类名一致 -->
+<mapper namespace="fun.hades.mapper.SysProjectMapper">
+
+    <!-- 1. 通用结果映射（复用性高，所有查询可引用） -->
+    <resultMap id="BaseResultMap" type="fun.hades.entity.SysProject">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="project_code" property="projectCode" jdbcType="VARCHAR"/>
+        <result column="owner_user_id" property="ownerUserId" jdbcType="BIGINT"/>
+        <result column="member_user_ids" property="memberUserIds" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!-- 2. 基础字段列（插入/更新时复用） -->
+    <sql id="Base_Column_List">
+        id, project_name, project_code, owner_user_id, member_user_ids,
+        status, description, create_time, create_by, update_time, update_by, is_deleted
+    </sql>
+
+    <!-- 3. 自定义扩展SQL示例（基础CRUD由MyBatis-Plus实现，此处预留常用复杂查询） -->
+    <!-- 示例1：根据负责人ID查询项目列表 -->
+    <select id="selectByOwnerUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_project
+        WHERE owner_user_id = #{ownerUserId}
+        AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 示例2：查询项目及关联的模块数量（多表关联查询） -->
+    <select id="selectProjectWithModuleCount" resultType="java.util.Map">
+        SELECT
+        p.id, p.project_name, p.project_code,
+        COUNT(m.id) AS module_count
+        FROM sys_project p
+        LEFT JOIN sys_project_module m ON p.id = m.project_id AND m.is_deleted = 0
+        WHERE p.is_deleted = 0
+        <if test="projectName != null and projectName != ''">
+            AND p.project_name LIKE CONCAT('%', #{projectName}, '%')
+        </if>
+        GROUP BY p.id, p.project_name, p.project_code
+        ORDER BY p.create_time DESC
+    </select>
+
+</mapper>

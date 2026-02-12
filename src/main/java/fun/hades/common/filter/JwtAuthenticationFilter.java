@@ -102,11 +102,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3. 验证令牌并设置认证信息（仅当用户未认证时处理）
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            log.info("userDetails ================{}", userDetails);
-
-
-            log.info("jwtUtil.validateToken(pureToken, userDetails) === {}",jwtUtil.validateToken(pureToken, userDetails));
-            log.info(" redisUtil.hasLoginToken(token) === {}", redisUtil.hasLoginToken(token));
 
             // 判断JWT 签名/过期时间有效 & Redis 中存在该 Token
             if (jwtUtil.validateToken(pureToken, userDetails) && redisUtil.hasLoginToken(token)) {

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * 用户Controller（对外提供用户查询接口）
  */
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Validated // 开启参数校验
 public class SysUserController {

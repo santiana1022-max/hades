@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.hades.mapper.SysProjectEnvMapper">
+    <!-- 根据项目ID查询环境列表 -->
+    <select id="selectByProjectId" resultType="fun.hades.entity.SysProjectEnv">
+        SELECT * FROM sys_project_env
+        WHERE project_id = #{projectId} AND is_deleted = 0
+        ORDER BY env_name ASC
+    </select>
+</mapper>

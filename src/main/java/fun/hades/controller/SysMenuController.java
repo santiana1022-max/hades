@@ -18,65 +18,11 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/sys/menu")
+@RequestMapping("/sys/menu")
 @RequiredArgsConstructor
 public class SysMenuController {
 
     private final SysMenuService sysMenuService;
-
-    /**
-     * 查询菜单树形列表
-     */
-    @GetMapping("/tree")
-    @PreAuthorize("hasAuthority('sys:menu:list')")
-    public Result<List<SysMenu>> tree() {
-        // 【临时调试】打印当前用户的权限列表
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("当前用户权限：{}", authentication.getAuthorities()); // 看这里是否有 sys:menu:list
-
-        List<SysMenu> menuTree = sysMenuService.listMenuTree();
-        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,menuTree);
-    }
-
-    /**
-     * 获取当前用户菜单树形列表
-     */
-    @GetMapping("/userMenu")
-    public Result<List<SysMenu>> userMenu() {
-        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<SysMenu> menuTree = sysMenuService.listMenuTreeByUserId(userId);
-        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,menuTree);
-    }
-
-    /**
-     * 新增菜单
-     */
-    @PostMapping("/add")
-    @PreAuthorize("hasAuthority('system:menu:add')")
-    public Result<Boolean> add(@Validated @RequestBody SysMenu menu) {
-        boolean result = sysMenuService.save(menu);
-        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,result);
-    }
-
-    /**
-     * 修改菜单
-     */
-    @PutMapping("/edit")
-    @PreAuthorize("hasAuthority('system:menu:edit')")
-    public Result<Boolean> edit(@Validated @RequestBody SysMenu menu) {
-        boolean result = sysMenuService.updateById(menu);
-        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,result);
-    }
-
-    /**
-     * 批量删除菜单
-     */
-    @DeleteMapping("/delete")
-    @PreAuthorize("hasAuthority('system:menu:delete')")
-    public Result<Boolean> delete(@RequestBody List<Long> ids) {
-        boolean result = sysMenuService.deleteMenuByIds(ids);
-        return Result.success(StatusCodeEnum.SUCCESS_GENERAL,result);
-    }
 
     // 当前登录用户可访问的菜单树（前端导航栏专用）
     @GetMapping("/user/menu")
